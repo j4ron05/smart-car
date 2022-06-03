@@ -1,0 +1,145 @@
+#include <Servo.h>
+int motorL = ;
+int motorR = ;
+int motorLreverse = ;
+int motorRreverse = ;
+int rightSpeed = ;
+int leftSpeed = ;
+int infTrigger = ;
+int leftIr = ;
+int aleftIr = ;
+int arightIr = ;
+int rightIr = ;
+int backIr = ;
+int infs = ;
+
+int rearVal = 0;
+int leftVal = 0;
+int aleftVal = 0;
+int arightVal = 0;
+int rightVal = 0;
+int infVal = 0;
+
+
+Servo bob;
+Servo draai;
+
+float duration;
+float distance;
+
+void setup() {
+  // put your setup code here, to run once:
+Serial.begin(9600);
+ pinMode(motorR, OUTPUT);
+  pinMode(motorL, OUTPUT);
+  pinMode(motorRreverse, OUTPUT);
+  pinMode(motorLreverse, OUTPUT);
+  pinMode(rightSpeed, OUTPUT);
+  pinMode(leftSpeed, OUTPUT);
+  pinMode(infTrigger, OUTPUT);
+  pinMode(leftIr, INPUT);
+  pinMode(aleftIr, INPUT);
+  pinMode(arightIr, INPUT);
+  pinMode(rightIr, INPUT);
+  pinMode(backIr, INPUT);
+  pinMode(infs, INPUT);
+  digitalWrite(motorR, LOW);
+  digitalWrite(motorL, LOW);
+  digitalWrite(motorRreverse, LOW);
+  digitalWrite(motorLreverse, LOW);
+  digitalWrite(rightSpeed, LOW);
+  digitalWrite(leftSpeed, LOW);
+  digitalWrite(infTrigger, LOW);
+  bob.attach(); // attach servos here
+  draai.attach();
+  draai.write(100);
+  bob.write(30);
+
+}
+
+void loop() {
+if (Serial.available()>0)
+{
+ char data = Serial.read();
+ switch(data)
+ {
+  case 'w':
+  // go forwards
+  motorCommand(200,200);
+  break;
+  case 's':
+  // go backwards
+  motorCommand(-200,-200);
+  break;
+  case 'a':
+  motorCommand(-200,200);
+  break;
+  case 'd':
+  motorCommand(200 ,-200);
+  break;
+  case 'e':
+  mep();
+  break;
+  case 't':
+  motorCommand(255,255);
+  break;
+  case 'q':
+  dance();
+  break;
+ default:
+ motorCommand(0,0);
+
+}
+Serial.println(data);
+}
+}
+void motorCommand(int leftMotorSpeed, int rightMotorSpeed) {
+
+  if (leftMotorSpeed < 0) {
+    // set direction
+    digitalWrite (motorL, LOW);
+    digitalWrite (motorLreverse, HIGH);
+  }
+  else if (leftMotorSpeed > 0) {
+    // set direction
+    digitalWrite (motorL, HIGH);
+    digitalWrite (motorLreverse, LOW);
+  }
+
+  // right motor
+  if (rightMotorSpeed < 0) {
+    // set direction
+    digitalWrite (motorR, LOW);
+    digitalWrite (motorRreverse, HIGH);
+  }
+  else if (rightMotorSpeed > 0) {
+    // set direction
+    digitalWrite (motorR, HIGH);
+    digitalWrite (motorRreverse, LOW);
+  }
+
+
+  analogWrite (leftSpeed, abs(leftMotorSpeed));
+  analogWrite (rightSpeed, abs(rightMotorSpeed));
+}
+void mep()
+{
+   bob.write(100);
+   delay (250);
+   bob.write(30);
+}
+void dance()
+{
+  motorCommand(250,-250);
+  mep();
+  delay(random(10,200));
+  mep();
+  motorCommand(-250,250);
+  mep();
+  delay(random(10,200));
+  motorCommand(255,-250);
+  delay(random(200,1000));
+  mep();
+ motorCommand(0,0);
+  
+}
