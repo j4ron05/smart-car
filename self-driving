@@ -1,0 +1,180 @@
+#include <Servo.h>
+int motorL = ;
+int motorR = ;
+int motorLreverse = ;
+int motorRreverse = ;
+int rightSpeed = ;
+int leftSpeed = ;
+int infTrigger = ;
+int leftIr = ;
+int aleftIr = ;
+int arightIr = ;
+int rightIr = ;
+int backIr = ;
+int infs = ;
+
+int rearVal = 0;
+int leftVal = 0;
+int aleftVal = 0;
+int arightVal = 0;
+int rightVal = 0;
+int infVal = 0;
+
+Servo bob;
+Servo draai;
+
+float duration;
+float distance;
+
+boolean go = true;
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(9600);
+  pinMode(motorR, OUTPUT);
+  pinMode(motorL, OUTPUT);
+  pinMode(motorRreverse, OUTPUT);
+  pinMode(motorLreverse, OUTPUT);
+  pinMode(rightSpeed, OUTPUT);
+  pinMode(leftSpeed, OUTPUT);
+  pinMode(infTrigger, OUTPUT);
+  pinMode(leftIr, INPUT);
+  pinMode(aleftIr, INPUT);
+  pinMode(arightIr, INPUT);
+  pinMode(rightIr, INPUT);
+  pinMode(backIr, INPUT);
+  pinMode(infs, INPUT);
+  digitalWrite(motorR, LOW);
+  digitalWrite(motorL, LOW);
+  digitalWrite(motorRreverse, LOW);
+  digitalWrite(motorLreverse, LOW);
+  digitalWrite(rightSpeed, LOW);
+  digitalWrite(leftSpeed, LOW);
+  digitalWrite(infTrigger, LOW);
+  bob.attach(); //attach servo 1 here
+  draai.attach(); // attach servo2 here
+  draai.write(95);
+  bob.write(30);
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  Sense();
+  usSensor();
+  control();
+  mep();
+}
+void mep()
+{
+  if (distance <= 20)
+  {
+
+   bob.write(90);
+   delay (200);
+   bob.write(30);
+}
+}
+void Sense()
+{
+  leftVal = analogRead(leftIr);
+
+  aleftVal = analogRead(aleftIr);
+ 
+  arightVal = analogRead(arightIr);
+
+  rightVal = analogRead(rightIr);
+
+  rearVal = analogRead(backIr);
+}
+void usSensor() {
+
+  digitalWrite(infTrigger, LOW);
+  delayMicroseconds(2);
+  digitalWrite(infTrigger, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(infTrigger, LOW);
+
+  duration = pulseIn(infs, HIGH);
+  distance = (duration * 0.0343) / 2;
+  Serial.print("aftand: ");
+  Serial.println(distance);
+
+}
+void control()
+{
+  Serial.println(rearVal);
+  if ( rightVal < 69 || arightVal < 69 || distance < 15) {
+    if (rearVal > 69) {
+      go = false;
+      turnRight();
+      delay(700);
+      go = true;
+    }
+  }
+  else if (leftVal < 69 || aleftVal < 69  )
+  {
+    if (rearVal > 69) {
+      go = false;
+      turnLeft();
+      delay(700);
+      go = true;
+    }
+  }
+  else if (rearVal > 69) {
+    if (go == true) {
+      motorCommand(130, 130);
+
+    }
+  }
+}
+void turnRight()
+{
+  motorCommand(-100, -100);
+  delay(600);
+  motorCommand(0, 0);
+
+  motorCommand(-255, 255);
+  delay(random(300, 600));
+  motorCommand(0, 0);
+
+}
+void turnLeft()
+{
+  motorCommand(-100, -100);
+  delay(600);
+  motorCommand(0, 0);
+
+  motorCommand(255, -255);
+  delay(random(300, 600));
+  motorCommand(0, 0);
+
+}
+
+void motorCommand(int leftMotorSpeed, int rightMotorSpeed) {
+
+  if (leftMotorSpeed < 0) {
+    // set direction
+    digitalWrite (motorL, LOW);
+    digitalWrite (motorLreverse, HIGH);
+  }
+  else if (leftMotorSpeed > 0) {
+    // set direction
+    digitalWrite (motorL, HIGH);
+    digitalWrite (motorLreverse, LOW);
+  }
+
+  // right motor
+  if (rightMotorSpeed < 0) {
+    // set direction
+    digitalWrite (motorR, LOW);
+    digitalWrite (motorRreverse, HIGH);
+  }
+  else if (rightMotorSpeed > 0) {
+    // set direction
+    digitalWrite (motorR, HIGH);
+    digitalWrite (motorRreverse, LOW);
+  }
+
+
+  analogWrite (leftSpeed, abs(leftMotorSpeed));
+  analogWrite (rightSpeed, abs(rightMotorSpeed));
+}
